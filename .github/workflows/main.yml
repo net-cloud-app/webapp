@@ -1,5 +1,4 @@
-
-name: Integration Test for CI
+name: CI
 
 on:
   pull_request:
@@ -8,51 +7,40 @@ on:
 
 jobs:
   build:
-    name: CI
     runs-on: ubuntu-latest
 
-    services:
-      mysql:
-        image: mysql:5.7
-        env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
-          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    env:
+      DB_HOST: ${{ secrets.DB_HOST }}
+      DB_USER: ${{ secrets.DB_USER }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_DATABASE: ${{ secrets.DB_DATABASE }}
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
         with:
-          node-version: 14
+          node-version: '14'
+
+      - name: Set up MySQL
+        uses: mysql/setup-mysql@v2
+        with:
+          mysql-version: '5.7'
+          mysql-root-password: ${{ secrets.DB_ROOT_PASSWORD }}
 
       - name: Install dependencies
         run: npm install
 
-      - name: Wait for MySQL to start
-        run: sleep 10
-
-      - name: Run Sequelize migrations
-        run: npx sequelize-cli db:migrate
-        env:
-          MYSQL_ROOT_PASSWORD: password
-          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
-        
-      - name: Start Node.js Application
-        run: node app.js # Modify this command to start your Node.js application
-
-      - name: Wait for the application to start
-        run: sleep 10 # Adjust the sleep duration as needed to allow your app to start
-
-      - name: Run Curl Command
+      - name: Build and configure application
         run: |
-          curl -X GET http://localhost:3000/healthz # Replace with the actual endpoint of your application
-        continue-on-error: true # Continue even if the curl command fails
+          npm run build
+          cp .env.example .env
+          echo "DB_HOST=${DB_HOST}" >> .env
+          echo "DB_USER=${DB_USER}" >> .env
+          echo "DB_PASSWORD=${DB_PASSWORD}" >> .env
+          echo "DB_DATABASE=${DB_DATABASE}" >> .env
 
-      - name: Stop Node.js Application
-        run: npm stop # Modify this command to stop your Node.js application if necessary
-        continue-on-error: true # Continue even if the stop command fails
+      - name: Run integration tests
+        run: npm test
