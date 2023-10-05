@@ -62,7 +62,7 @@ jobs:
 
         for i in {1..30}; do
 
-          if echo 'SELECT 1' | mysql --host=127.0.0.1 --user=root --password=root &> /dev/null; then
+          if echo 'SELECT 1' | mysql --host=127.0.0.1 --user=root --password=password &> /dev/null; then
 
             break
 
@@ -78,7 +78,7 @@ jobs:
 
       run: |
 
-        echo 'SHOW DATABASES;' | mysql --host=127.0.0.1 --user=root --password=root | grep csyedb
+        echo 'SHOW DATABASES;' | mysql --host=127.0.0.1 --user=root --password=password | grep csyedb
 
     - name: Use Node.js ${{ matrix.node-version }}
 
