@@ -1,46 +1,95 @@
-name: CI
+
+
+name: Node.js
+
+ 
 
 on:
+
+  workflow_dispatch:
+
   pull_request:
-    branches:
-      - main
+
+    branches: [ "main" ]
+
+ 
 
 jobs:
+
   build:
+
+    name: webapp test
+
     runs-on: ubuntu-latest
 
-    env:
-      DB_HOST: ${{ secrets.DB_HOST }}
-      DB_USER: ${{ secrets.DB_USER }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      DB_DATABASE: ${{ secrets.DB_DATABASE }}
+ 
+
+    services:
+
+      mysql:
+
+        image: mysql:5.7
+
+        env:
+
+          MYSQL_ROOT_PASSWORD: password
+
+          MYSQL_DATABASE: db1 # Specify the name of the database to be created here
+
+        ports:
+
+          - 3306:3306
+
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+ 
+
+    strategy:
+
+      matrix:
+
+        node-version: [19.2.0]
+
+ 
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'
+    - uses: actions/checkout@v3
 
-      - name: Set up MySQL
-        uses: mysql/setup-mysql@v2
-        with:
-          mysql-version: '5.7'
-          mysql-root-password: ${{ secrets.DB_ROOT_PASSWORD }}
+    - name: Wait for MySQL to become available
 
-      - name: Install dependencies
-        run: npm install
+      run: |
 
-      - name: Build and configure application
-        run: |
-          npm run build
-          cp .env.example .env
-          echo "DB_HOST=${DB_HOST}" >> .env
-          echo "DB_USER=${DB_USER}" >> .env
-          echo "DB_PASSWORD=${DB_PASSWORD}" >> .env
-          echo "DB_DATABASE=${DB_DATABASE}" >> .env
+        for i in {1..30}; do
 
-      - name: Run integration tests
-        run: npm test
+          if echo 'SELECT 1' | mysql --host=127.0.0.1 --user=root --password=root &> /dev/null; then
+
+            break
+
+          fi
+
+          echo "Waiting for MySQL..."
+
+          sleep 1
+
+        done
+
+    - name: Check and verify database existence
+
+      run: |
+
+        echo 'SHOW DATABASES;' | mysql --host=127.0.0.1 --user=root --password=root | grep csyedb
+
+    - name: Use Node.js ${{ matrix.node-version }}
+
+      uses: actions/setup-node@v3
+
+      with:
+
+        node-version: ${{ matrix.node-version }}
+
+        cache: 'npm'
+
+    - run: npm ci
+
+    - run: npm run test
