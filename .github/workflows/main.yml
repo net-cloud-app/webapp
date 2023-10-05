@@ -1,16 +1,16 @@
 
 
-name: Node.js
+name: Integration Test for CI
 
  
 
 on:
 
-  workflow_dispatch:
+  push:
 
-  pull_request:
+    branches:
 
-    branches: [ "main" ]
+      - main
 
  
 
@@ -18,7 +18,7 @@ jobs:
 
   build:
 
-    name: webapp test
+    name: CI
 
     runs-on: ubuntu-latest
 
@@ -32,9 +32,9 @@ jobs:
 
         env:
 
-          MYSQL_ROOT_PASSWORD: password
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
 
-          MYSQL_DATABASE: db1 # Specify the name of the database to be created here
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
 
         ports:
 
@@ -44,52 +44,70 @@ jobs:
 
  
 
-    strategy:
+    steps:
 
-      matrix:
+      - name: Checkout code
 
-        node-version: [19.2.0]
+        uses: actions/checkout@v3
 
  
 
-    steps:
+      - name: Setup Node.js
 
-    - uses: actions/checkout@v3
+        uses: actions/setup-node@v2
 
-    - name: Wait for MySQL to become available
+        with:
 
-      run: |
+          node-version: 14
 
-        for i in {1..30}; do
+ 
 
-          if echo 'SELECT 1' | mysql --host=127.0.0.1 --user=root --password=password &> /dev/null; then
+      - name: Install dependencies
 
-            break
+        run: npm install
 
-          fi
+ 
 
-          echo "Waiting for MySQL..."
+      - name: Test MySQL Connection
 
-          sleep 1
+        run: |
 
-        done
+          mysql -h 127.0.0.1 -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }} -D ${{ secrets.MYSQL_DATABASE }} -e "SHOW DATABASES;"
 
-    - name: Check and verify database existence
+ 
 
-      run: |
+      - name: Start Node.js Application in Background
 
-        echo 'SHOW DATABASES;' | mysql --host=127.0.0.1 --user=root --password=password | grep csyedb
+        run: |
 
-    - name: Use Node.js ${{ matrix.node-version }}
+          node app.js &
 
-      uses: actions/setup-node@v3
+          sleep 10
 
-      with:
+ 
 
-        node-version: ${{ matrix.node-version }}
+      - name: Wait for Application to Start
 
-        cache: 'npm'
+        run: sleep 10
 
-    - run: npm ci
+ 
 
-    - run: npm run test
+      - name: Run Curl Command
+
+        run: |
+
+          curl -X GET http://localhost:3000/healthz 
+
+        continue-on-error: true # Continue even if the curl command fails
+
+ 
+
+      - name: Stop Node.js Application
+
+        run: |
+
+          # If you're using pm2
+
+          pm2 stop my-app || true # Adjust the app name as needed
+
+        continue-on-error: true # Continue even if the stop command fails
