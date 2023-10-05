@@ -1,0 +1,55 @@
+name: Integration Test for CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: CI
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Wait for MySQL to start
+        run: sleep 10
+
+      - name: Run Sequelize migrations
+        run: npx sequelize-cli db:migrate
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+        
+      - name: Start Node.js Application
+        run: node app.js # Modify this command to start your Node.js application
+
+      - name: Wait for the application to start
+        run: sleep 10 # Adjust the sleep duration as needed to allow your app to start
+
+      - name: Run Integration Tests
+        run: npm test
+
+      - name: Stop Node.js Application
+        run: npm stop # Modify this command to stop your Node.js application if necessary
+        continue-on-error: true # Continue even if the stop command fails
