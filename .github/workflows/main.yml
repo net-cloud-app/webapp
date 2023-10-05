@@ -39,7 +39,7 @@ jobs:
       - name: Run Sequelize migrations
         run: npx sequelize-cli db:migrate
         env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_ROOT_PASSWORD: password
           MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
         
       - name: Start Node.js Application
