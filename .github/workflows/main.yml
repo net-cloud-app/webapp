@@ -1,3 +1,4 @@
+
 name: Integration Test for CI
 
 on:
@@ -49,7 +50,7 @@ jobs:
 
       - name: Run Curl Command
         run: |
-          curl -X GET http://localhost:6969/healthz # Replace with the actual endpoint of your application
+          curl -X GET http://localhost:3000/healthz # Replace with the actual endpoint of your application
         continue-on-error: true # Continue even if the curl command fails
 
       - name: Stop Node.js Application
