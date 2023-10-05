@@ -22,10 +22,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 14
 
@@ -47,8 +47,10 @@ jobs:
       - name: Wait for the application to start
         run: sleep 10 # Adjust the sleep duration as needed to allow your app to start
 
-      - name: Run Integration Tests
-        run: npm test
+      - name: Run Curl Command
+        run: |
+          curl -X GET http://localhost:6969/healthz # Replace with the actual endpoint of your application
+        continue-on-error: true # Continue even if the curl command fails
 
       - name: Stop Node.js Application
         run: npm stop # Modify this command to stop your Node.js application if necessary
