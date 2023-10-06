@@ -15,7 +15,6 @@
   },
   "scripts": {
     "start": "node app.js",
-    "test": "mocha tests/**/*.test.js"
-
+    "test": "mocha test/*.js"
   }
 }
