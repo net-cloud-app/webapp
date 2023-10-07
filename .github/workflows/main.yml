@@ -27,34 +27,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: 14
+          node-version: 14 
 
       - name: Install dependencies
         run: npm install
 
-      - name: Wait for MySQL to become available
+      - name: Test MySQL Connection
         run: |
-          for i in {1..30}; do
-            if echo 'SELECT 1' | mysql --host=127.0.0.1 --user=root --password="${{ secrets.MYSQL_ROOT_PASSWORD }}" --database="${{ secrets.MYSQL_DATABASE }}" &> /dev/null; then
-              break
-            fi
-            echo "Waiting for MySQL..."
-            sleep 1
-          done
+          mysql -h 127.0.0.1 -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }} -D ${{ secrets.MYSQL_DATABASE }} -e "SHOW DATABASES;"
 
-      - name: Start Node.js Application in Background
-        run: |
-          node app.js &
-          sleep 10
-
-      - name: Wait for Application to Start
-        run: sleep 10
-
-      - name: Run Curl Command
-        run: |
-          curl -X GET http://localhost:3000/healthz
-
-      - name: Stop Node.js Application
-        run: |
-          # If you're using pm2
-          pm2 stop my-app || true # Adjust the app name as needed
+      - name: Run Integration Tests in the Background
+        run: npx mocha tests/healthz.test.js &
