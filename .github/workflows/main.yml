@@ -32,6 +32,10 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      -  name: install npx sequelize
+         run: npx sequelize-cli db:migrate
+
+
       - name: Install chai-http
         run: npm install chai-http
 
