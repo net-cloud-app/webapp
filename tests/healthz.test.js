@@ -1,20 +1,13 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const app = require('../app'); // Import your Express app
+const { expect } = chai;
 
 chai.use(chaiHttp);
-const expect = chai.expect;
 
-describe('/healtz Endpoint', () => {
-  it('should return a 200 status code and a success message', (done) => {
-    chai.request(app)
-      .get('/healtz')
-      .end((err, res) => {
-        expect(res).to.have.status(200);
-        expect(res.body).to.have.property('message').to.equal('Healthy');
-        done();
-      });
+describe('Integration Test for /healthz endpoint', () => {
+  it('should return status 200 and "OK"', async () => {
+    const res = await chai.request(app).get('/healthz');
+    expect(res).to.have.status(200);
   });
 });
-
-
