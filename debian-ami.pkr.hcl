@@ -56,7 +56,7 @@ source "amazon-ebs" "custom" {
   ssh_username  = "admin"
   vpc_id        = var.vpc_id
   // subnet_id     = var.subnet_id
-  region        = var.aws_region
+  region = var.aws_region
 
   access_key = var.aws_access_key
   secret_key = var.aws_secret_access_key
