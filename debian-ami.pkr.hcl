@@ -22,10 +22,10 @@ variable "ami_name" {
   description = "The name of the custom AMI"
 }
 
-variable "vpc_id" {
-  type        = string
-  description = "The VPC ID to use"
-}
+// variable "vpc_id" {
+//   type        = string
+//   description = "The VPC ID to use"
+// }
 
 // variable "subnet_id" {
 //   type        = string
@@ -54,7 +54,7 @@ source "amazon-ebs" "custom" {
   source_ami    = var.source_ami
   instance_type = "t2.micro"
   ssh_username  = "admin"
-  vpc_id        = var.vpc_id
+  // vpc_id        = var.vpc_id
   // subnet_id     = var.subnet_id
   region = var.aws_region
 
