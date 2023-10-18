@@ -3,10 +3,15 @@ const Assignment = require('../models/Assignment');
 module.exports = {
   createAssignment: async (req, res) => {
     try {
+      if (!req.body.title) {
+        return res.status(400).json({ error: 'Title is required' });
+      }
+
       const assignmentData = {
         ...req.body,
-        createdBy: req.user.id, // Setting the creator to the current user's ID
+        createdBy: req.user.id,
       };
+
       const assignment = await Assignment.create(assignmentData);
       res.status(201).json(assignment);
     } catch (error) {
@@ -19,15 +24,20 @@ module.exports = {
       const assignment = await Assignment.findOne({
         where: { id: req.params.id, createdBy: req.user.id },
       });
-
+  
       if (!assignment) {
         return res.status(404).json({ error: 'Assignment not found' });
       }
-
+  
+      // Check if the request body contains the 'updatedAt' field
+      if (req.body.updatedAt) {
+        return res.status(400).json({ error: 'Updating updatedAt field is not allowed' });
+      }
+  
       // Updating the assignment
       await assignment.update(req.body);
-
-      res.status(200).json(assignment);
+  
+      res.status(204).json(assignment);
     } catch (error) {
       res.status(500).json({ error: 'Internal server error' });
     }

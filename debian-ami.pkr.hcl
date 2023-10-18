@@ -27,10 +27,10 @@ variable "vpc_id" {
   description = "The VPC ID to use"
 }
 
-variable "subnet_id" {
-  type        = string
-  description = "The subnet ID to use"
-}
+// variable "subnet_id" {
+//   type        = string
+//   description = "The subnet ID to use"
+// }
 
 variable "aws_region" {
   type        = string
@@ -55,7 +55,7 @@ source "amazon-ebs" "custom" {
   instance_type = "t2.micro"
   ssh_username  = "admin"
   vpc_id        = var.vpc_id
-  subnet_id     = var.subnet_id
+  // subnet_id     = var.subnet_id
   region        = var.aws_region
 
   access_key = var.aws_access_key
