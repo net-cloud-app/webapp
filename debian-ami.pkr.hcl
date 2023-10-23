@@ -49,7 +49,7 @@ variable "aws_secret_access_key" {
 
 
 
-source "amazon-ebs" "custom" {
+  source "amazon-ebs" "custom" {
   ami_name      = var.ami_name
   source_ami    = var.source_ami
   instance_type = "t2.micro"
