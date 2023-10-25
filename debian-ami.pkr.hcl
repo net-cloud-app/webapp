@@ -94,7 +94,7 @@ build {
       "sudo apt install -y nodejs npm",
       "sudo apt update",
       "sudo apt install -y unzip",
-      "unzip my-repo-files.zip -d .",
+      "sudo unzip my-repo-files.zip -d .",
       "sudo chown -R csye6225:csye6225 /opt/csye6225",
       "npm install express sequelize mysql2 body-parser bcrypt basic-auth",
       "npm uninstall bcrypt",
