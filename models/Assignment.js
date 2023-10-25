@@ -2,13 +2,17 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
 const Assignment = sequelize.define('Assignment', {
-  title: {
+  name: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  description: {
-    type: DataTypes.TEXT,
+  NoOfAttempts: {
+    type: DataTypes.INTEGER,
     allowNull: false,
+    validate: {
+      min: 1,
+      max: 10,
+    },
   },
   points: {
     type: DataTypes.INTEGER,

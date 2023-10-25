@@ -1,8 +1,8 @@
 const { Sequelize } = require('sequelize');
 
 // Loading database configuration from config.json
-const config = require('./config.json')[process.env.NODE_ENV || 'development'];
-
+const config = require('../config.json')[process.env.NODE_ENV || 'development'];
+ß
 // Creating a Sequelize instance
 const sequelize = new Sequelize(
   config.database,
