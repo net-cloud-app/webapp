@@ -92,6 +92,8 @@ build {
       "sudo mv my-repo-files.zip /opt/csye6225/ ",
       "echo 'unzipping the file'",
       "cd /opt/csye6225/",
+      "sudo apt update",
+      "sudo apt install -y unzip",
       "sudo unzip my-repo-files.zip -d .",
       "echo 'changing the permissions of script file and running the script'",
       "sudo chmod +x ./script.sh",
