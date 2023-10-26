@@ -4,7 +4,7 @@ After=cloud-final.service
 
 [Service]
 User=csye6225
-WorkingDirectory=/opt/csye6225
+WorkingDirectory=/opt/csye6225/
 ExecStart=/usr/bin/node /opt/csye6225/app.js
 Restart=always
 
