@@ -1,16 +1,13 @@
 const { Sequelize } = require('sequelize');
+require('dotenv').config(); // Load environment variables from .env file
 
-// Loading database configuration from config.json
-const config = require('./config.json')[process.env.NODE_ENV || 'development'];
-
-// Creating a Sequelize instance
 const sequelize = new Sequelize(
-  config.database,
-  config.username,
-  config.password,
+  process.env.DB_DATABASE,
+  process.env.DB_USERNAME,
+  process.env.DB_PASSWORD,
   {
-    host: config.host,
-    dialect: config.dialect,
+    host: process.env.DB_HOST,
+    dialect: process.env.DB_DIALECT,
     logging: false, // Disabling SQL query logging
   }
 );
