@@ -18,4 +18,6 @@ npm install csv-parser --save
 
 npm install chai-http --save-dev
 
+npm install dotenv
+
 npm install
