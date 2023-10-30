@@ -7,7 +7,7 @@
 
 ## Getting Started
 
-To build and deploy the application locally, follow these steps:
+To build and deploy the application locally, follow these steps:   
 
 1. **Clone the Repository:**
 
