@@ -3,8 +3,8 @@ const Assignment = require('../models/Assignment');
 module.exports = {
   createAssignment: async (req, res) => {
     try {
-      if (!req.body.title) {
-        return res.status(400).json({ error: 'Title is required' });
+      if (!req.body.name) {
+        return res.status(400).json({ error: 'Name is required' });
       }
 
       const assignmentData = {
