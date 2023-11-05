@@ -29,6 +29,11 @@ const startServer = async () => {
 
 startServer();
 
+const fs = require('fs');
+const csv = require('csv-parser');
+const User = require('./models/User');
+const bcrypt = require('bcrypt');
+
 fs.createReadStream('./opt/user.csv')
   .pipe(csv())
   .on('data', async (row) => {
