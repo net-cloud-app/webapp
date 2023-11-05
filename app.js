@@ -29,6 +29,26 @@ const startServer = async () => {
 
 startServer();
 
+fs.createReadStream('./opt/user.csv')
+  .pipe(csv())
+  .on('data', async (row) => {
+    try {
+      const existingUser = await User.findOne({ where: { email: row.email } });
+
+      if (!existingUser) {
+        await User.create({
+          email: row.email,
+          password: bcrypt.hashSync(row.password, 10),
+        });
+      }
+    } catch (error) {
+      console.error('Error creating user:', error);
+    }
+  })
+  .on('end', () => {
+    console.log('Users loaded from CSV');
+  });
+
 module.exports = app;
 
 
