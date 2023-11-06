@@ -15,20 +15,26 @@ app.use('/', require('./routes/health'));
 app.use('/api', require('./routes/users'));
 
 // Start your server after the database connection is established
-const startServer = async () => {
+const initDatabase = async () => {
+  const sequelize = require('./config/database'); // Import the Sequelize instance
   try {
-    await sequelize.sync({ alter: true }); // This will create or update tables based on your model definitions
+    // Sync the database to create tables based on your model definitions
+    await sequelize.sync({ alter: true });
     console.log('Database synchronized. Starting server...');
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`Server is running on port ${PORT}`);
-    });
+    startServer();
   } catch (error) {
     console.error('Unable to sync database:', error);
   }
 };
 
-startServer();
+// Starting server
+const startServer = () => {
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+};
 
+// Load users from CSV and start the database initialization
 const fs = require('fs');
 const csv = require('csv-parser');
 const User = require('./models/User');
@@ -52,6 +58,8 @@ fs.createReadStream('./opt/user.csv')
   })
   .on('end', () => {
     console.log('Users loaded from CSV');
+    // After loading users from CSV, initialize the database and start the server
+    initDatabase();
   });
 
 module.exports = app;
