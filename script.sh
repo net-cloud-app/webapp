@@ -28,6 +28,9 @@ npm install node-statsd
 
 npm install
 
+sudo apt-get install expect
+
+sudo yum install expect
 
 file_to_edit="/opt/csye6225/migrations/20231001203320-create-assignment.js"
 
