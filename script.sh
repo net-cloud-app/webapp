@@ -25,3 +25,7 @@ npm install winston
 npm install node-statsd
 
 npm install
+
+file_to_edit="/opt/csye6225/migrations/20231001203320-create-assignment.js"
+
+sudo nano "$file_to_edit" < <(echo -e '\x1B\x7F')
