@@ -20,4 +20,6 @@ npm install chai-http --save-dev
 
 npm install dotenv
 
+npm install winston
+
 npm install
