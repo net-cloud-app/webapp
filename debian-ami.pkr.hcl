@@ -102,6 +102,8 @@ build {
       "sudo apt remove git -y",
       "ls -al",
       "sudo mv app.service /etc/systemd/system/",
+      "sudo wget https://s3.amazonaws.com/amazoncloudwatch-agent/debian/amd64/latest/amazon-cloudwatch-agent.deb",
+      "sudo dpkg -i -E ./amazon-cloudwatch-agent.deb",
       "sudo systemctl daemon-reload",
       "sudo systemctl enable app",
       "sudo systemctl start app"
