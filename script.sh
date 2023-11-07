@@ -6,6 +6,8 @@ sudo apt install -y nodejs npm
 
 sudo apt update
 
+sudo apt-get install expect
+
 sudo apt install -y unzip
 
 npm install express sequelize mysql2 body-parser bcrypt basic-auth
@@ -29,10 +31,21 @@ npm install
 
 file_to_edit="/opt/csye6225/migrations/20231001203320-create-assignment.js"
 
-# Edit the file with nano
-sudo nano -S "$file_to_edit" << EOL
-\cX
-EOL
+# Define the expect script
+expect_script=$(cat << EOF
+spawn sudo nano $file_to_edit
+expect "File Name to Write: "
+send "\x1B:wq\n"
+expect eof
+EOF
+)
+
+# Execute the expect script
+echo "$expect_script" | expect
+
+# Sleep for 10 seconds
+sleep 10
+
 
 
 
