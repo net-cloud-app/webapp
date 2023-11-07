@@ -3,7 +3,16 @@ const bodyParser = require('body-parser');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const sequelize = require('./config/database'); // Import the Sequelize instance
+const winston = require('winston');
 
+
+winston.configure({
+  level: 'info', // Logging level
+  format: winston.format.simple(), // Simple log format
+  transports: [
+    new winston.transports.File({ filename: 'app.log' }) // Log to a file
+  ]
+});
 
 // Middleware
 app.use(bodyParser.json());
@@ -27,9 +36,16 @@ const initDatabase = async () => {
   }
 };
 
+app.use((req, res, next) => {
+  winston.info(`Request to ${req.method} ${req.path}`);
+  next();
+});
+
+
 // Starting server
 const startServer = () => {
   app.listen(PORT, () => {
+    winston.info(`Server is running on port ${PORT}`);
     console.log(`Server is running on port ${PORT}`);
   });
 };
