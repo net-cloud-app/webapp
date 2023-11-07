@@ -22,4 +22,6 @@ npm install dotenv
 
 npm install winston
 
+npm install node-statsd
+
 npm install

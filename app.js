@@ -3,16 +3,38 @@ const bodyParser = require('body-parser');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const sequelize = require('./config/database'); // Import the Sequelize instance
+const StatsD = require('node-statsd');
+
 const winston = require('winston');
 
 
-winston.configure({
-  level: 'info', // Logging level
-  format: winston.format.simple(), // Simple log format
+
+
+// winston.configure({
+//   level: 'info', // Logging level
+//   format: winston.format.simple(), // Simple log format
+//   transports: [
+//     new winston.transports.File({ filename: 'app.log' }) // Log to a file
+//   ]
+// });
+
+
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.simple(),
   transports: [
-    new winston.transports.File({ filename: 'app.log' }) // Log to a file
+    new winston.transports.File({ filename: 'app.log' })
   ]
 });
+
+module.exports.logger = logger;
+
+const statsd = new StatsD({
+  host: 'localhost', // Replace with your StatsD server host
+  port: 8125, // Replace with your StatsD server port
+});
+
+
 
 // Middleware
 app.use(bodyParser.json());
@@ -37,7 +59,8 @@ const initDatabase = async () => {
 };
 
 app.use((req, res, next) => {
-  winston.info(`Request to ${req.method} ${req.path}`);
+  logger.info(`Request to ${req.method} ${req.path}`);
+  statsd.increment('request.total');
   next();
 });
 
@@ -45,7 +68,8 @@ app.use((req, res, next) => {
 // Starting server
 const startServer = () => {
   app.listen(PORT, () => {
-    winston.info(`Server is running on port ${PORT}`);
+    logger.info(`Server is running on port ${PORT}`);
+    statsd.increment('Server.run');
     console.log(`Server is running on port ${PORT}`);
   });
 };
@@ -79,6 +103,7 @@ fs.createReadStream('./opt/user.csv')
   });
 
 module.exports = app;
+
 
 
 // Call the function to start the server and perform migrations
