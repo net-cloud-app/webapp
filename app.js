@@ -21,7 +21,10 @@ const winston = require('winston');
 
 const logger = winston.createLogger({
   level: 'info',
-  format: winston.format.simple(),
+  format: winston.format.combine(
+    winston.format.timestamp(), // Add timestamp to log messages
+    winston.format.simple()
+  ),
   transports: [
     new winston.transports.File({ filename: 'app.log' })
   ]
