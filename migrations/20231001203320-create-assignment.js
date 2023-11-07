@@ -5,15 +5,16 @@ module.exports = {
     await queryInterface.createTable('Assignments', {
       id: {
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.UUID, // Change the data type to UUID
+        defaultValue: Sequelize.UUIDV4, // Set a default value using UUIDV4
       },
-      title: {
+      name: {
         type: Sequelize.STRING
       },
-      description: {
-        type: Sequelize.TEXT
+      NoOfAttempts: {
+        allowNull: false,
+        type: Sequelize.INTEGER
       },
       points: {
         type: Sequelize.INTEGER
