@@ -16,6 +16,7 @@ module.exports = {
     }
 
     try {
+      statsd.increment('Users.Authenticated');
       const user = await User.findOne({ where: { email: credentials.name } });
 
       if (!user || !bcrypt.compareSync(credentials.pass, user.password)) {
