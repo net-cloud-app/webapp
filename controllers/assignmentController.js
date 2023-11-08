@@ -6,6 +6,7 @@ const { logger } = require('../app'); // Import the logger from app.js
 module.exports = {
   createAssignment: async (req, res) => {
     try {
+      statsd.increment('Assignment.Create');
       const { name, points, NoOfAttempts } = req.body;
 
       if (!name || points < 1 || points > 10 || NoOfAttempts === null) {
@@ -29,6 +30,7 @@ module.exports = {
 
   updateAssignment: async (req, res) => {
     try {
+      statsd.increment('Assignment.Update');
       const assignment = await Assignment.findOne({
         where: { id: req.params.id, createdBy: req.user.id },
       });
@@ -64,6 +66,7 @@ module.exports = {
 
   getUserAssignments: async (req, res) => {
     try {
+      statsd.increment('Assignment.getAll');
       const assignment = await Assignment.findAll({
         where: { createdBy: req.user.id },
       });
@@ -83,6 +86,7 @@ module.exports = {
 
   deleteAssignment: async (req, res) => {
     try {
+      statsd.increment('Assignment.delete');
       const assignment = await Assignment.findOne({
         where: { id: req.params.id, createdBy: req.user.id },
       });
@@ -105,6 +109,7 @@ module.exports = {
 
   getUserAssignmentsById: async (req, res) => {
     try {
+      statsd.increment('Assignment.getbyID');
       const assignment = await Assignment.findOne({
         where: { id: req.params.id, createdBy: req.user.id },
       });

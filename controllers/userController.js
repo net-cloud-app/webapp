@@ -1,9 +1,5 @@
 const User = require('../models/User');
-// const winston = require('winston');
-
 const { logger } = require('../app'); // Import the logger from app.js
-
-
 
 // GET all users (no authentication required) and handle DELETE requests
 exports.getAllUsers = async (req, res) => {
@@ -16,15 +12,15 @@ exports.getAllUsers = async (req, res) => {
     }
 
     const users = await User.findAll();
-    logger.info("Retreived all Users");
+    logger.info("Retrieved all Users");
     res.status(200).json(users);
   } catch (error) {
     // Log an error message and return an appropriate error response
     logger.error('Error retrieving users:', error);
 
-    if (error instanceof MyCustomError) {
-      // Handle your custom error with a specific status code
-      logger.warn('Custom error encountered:', error);
+    if (error instanceof Error) {
+      // Handle standard JavaScript errors with a specific status code
+      logger.warn('Error encountered:', error);
       return res.status(400).json({ error: 'Bad Request' });
     }
 
