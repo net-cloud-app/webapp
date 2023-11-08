@@ -7,8 +7,7 @@ const StatsD = require('node-statsd');
 
 const winston = require('winston');
 
-
-
+app.locals.statsd = statsd;
 
 // winston.configure({
 //   level: 'info', // Logging level
