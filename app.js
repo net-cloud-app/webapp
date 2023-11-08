@@ -46,16 +46,6 @@ app.use(bodyParser.json());
 app.use('/auth', require('./routes/auth'));
 app.use('/api', require('./routes/assignments'));
 
-app.post('/', (req, res) => {
-  req.url = '/api/assignments'; 
-  app._router.handle(req, res);
-});
-
-app.get('/', (req, res) => {
-  req.url = '/api/assignments'; 
-  app._router.handle(req, res);
-});
-
 app.use('/', require('./routes/health'));
 app.use('/api', require('./routes/users'));
 
