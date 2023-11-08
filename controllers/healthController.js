@@ -2,6 +2,8 @@
 const sequelize = require('../config/database');
 // const winston = require('winston');
 const { logger } = require('../app'); // Import the logger from app.js
+const { statsd } = require('../app');
+
 
 
 exports.checkHealth = async (req, res) => {

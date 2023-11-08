@@ -1,5 +1,7 @@
 const User = require('../models/User');
 const { logger } = require('../app'); // Import the logger from app.js
+const { statsd } = require('../app');
+
 
 // GET all users (no authentication required) and handle DELETE requests
 exports.getAllUsers = async (req, res) => {
