@@ -26,7 +26,6 @@ npm install node-statsd
 
 npm install
 
-sudo chown root:root /opt/csye6225/migrations
 
 
 
