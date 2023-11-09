@@ -16,9 +16,7 @@ router.patch('/assignments/:id', (req, res) => {
     res.status(405).json({ error: 'Method Not Allowed' });
 });
 
-// Define routes for the root level to handle POST and GET requests
-router.post('/', assignmentController.createAssignment); // Handle POST at the root
-router.get('/', assignmentController.getUserAssignments); // Handle GET at the root
+
 
 
 //ehgfegfuygyuefgyg

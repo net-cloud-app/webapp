@@ -1,12 +1,13 @@
 const Assignment = require('../models/Assignment');
 const winston = require('winston');
 const { logger } = require('../app'); // Import the logger from app.js
+const { statsd } = require('../app');
 
 
 module.exports = {
   createAssignment: async (req, res) => {
     try {
-      req.app.locals.statsd.increment('createAssignment.api_call');
+      statsd.increment('createAssignment.api_call');
       const { name, points, NoOfAttempts } = req.body;
 
       if (!name || points < 1 || points > 10 || NoOfAttempts === null) {
@@ -30,7 +31,7 @@ module.exports = {
 
   updateAssignment: async (req, res) => {
     try {
-      req.app.locals.statsd.increment('updateAssignment.api_call');
+      statsd.increment('updateAssignment.api_call');
       const assignment = await Assignment.findOne({
         where: { id: req.params.id, createdBy: req.user.id },
       });
@@ -66,7 +67,7 @@ module.exports = {
 
   getUserAssignments: async (req, res) => {
     try {
-      req.app.locals.statsd.increment('getUserAssignment.api_call');
+      statsd.increment('getUserAssignment.api_call');
       const assignment = await Assignment.findAll({
         where: { createdBy: req.user.id },
       });
@@ -86,7 +87,7 @@ module.exports = {
 
   deleteAssignment: async (req, res) => {
     try {
-      req.app.locals.statsd.increment('deleteAssignment.api_call');
+      statsd.increment('deleteAssignment.api_call');
       const assignment = await Assignment.findOne({
         where: { id: req.params.id, createdBy: req.user.id },
       });
@@ -109,7 +110,7 @@ module.exports = {
 
   getUserAssignmentsById: async (req, res) => {
     try {
-      req.app.locals.statsd.increment('getUserIdAssignment.api_call');
+      statsd.increment('getUserIdAssignment.api_call');
       const assignment = await Assignment.findOne({
         where: { id: req.params.id, createdBy: req.user.id },
       });

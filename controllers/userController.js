@@ -1,11 +1,13 @@
 const User = require('../models/User');
 const { logger } = require('../app'); // Import the logger from app.js
+const { statsd } = require('../app');
+
 
 
 // GET all users (no authentication required) and handle DELETE requests
 exports.getAllUsers = async (req, res) => {
   try {
-    req.app.locals.statsd.increment('getAllUsers.api_call');
+    statsd.increment('getAllUsers.api_call');
     if (req.method === 'DELETE') {
       // Log a "Method Not Allowed" message and return a "Method Not Allowed" response for DELETE requests
       logger.warn('DELETE request not allowed for getting users');
