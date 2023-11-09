@@ -5,6 +5,9 @@ const basicAuth = require('basic-auth');
 
 const { logger } = require('../app'); // Import the logger from app.js
 
+const { statsd } = require('../app');
+
+
 
 
 module.exports = {
@@ -17,7 +20,7 @@ module.exports = {
     }
 
     try {
-      req.app.locals.statsd.increment('login.api_call');
+      statsd.increment('login.api_call');
       const user = await User.findOne({ where: { email: credentials.name } });
 
       if (!user || !bcrypt.compareSync(credentials.pass, user.password)) {

@@ -7,8 +7,6 @@ const StatsD = require('node-statsd');
 
 const winston = require('winston');
 
-app.locals.statsd = statsd;
-
 // winston.configure({
 //   level: 'info', // Logging level
 //   format: winston.format.simple(), // Simple log format
@@ -36,6 +34,9 @@ const statsd = new StatsD({
   port: 8125, // Replace with your StatsD server port
 });
 
+module.exports.statsd = statsd; // Export the statsd instance
+
+
 
 
 // Middleware
@@ -44,6 +45,16 @@ app.use(bodyParser.json());
 // Routes
 app.use('/auth', require('./routes/auth'));
 app.use('/api', require('./routes/assignments'));
+
+app.post('/', (req, res) => {
+  req.url = '/api/assignments'; // Rewrite the URL to the desired endpoint
+  app._router.handle(req, res);
+});
+
+app.get('/', (req, res) => {
+  req.url = '/api/assignments'; // Rewrite the URL to the desired endpoint
+  app._router.handle(req, res);
+});
 
 app.use('/', require('./routes/health'));
 app.use('/api', require('./routes/users'));

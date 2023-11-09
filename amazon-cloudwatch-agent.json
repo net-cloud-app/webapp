@@ -8,8 +8,8 @@
                 "collect_list": [
                     {
                         "file_path": "/opt/csye6225/app.log",
-                        "log_group_name": "your-log-group",
-                        "log_stream_name": "your-log-stream-{instance_id}",
+                        "log_group_name": "Mylog-group",
+                        "log_stream_name": "Mylog-stream-{instance_id}",
                         "timestamp_format": "%b %d %H:%M:%S",
                         "timezone": "LOCAL"
                     }
