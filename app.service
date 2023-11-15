@@ -1,6 +1,6 @@
 [Unit]
 Description=My Node.js Application
-After=cloud-final.service
+After=cloud-final.Service
 
 [Service]
 User=csye6225
@@ -9,5 +9,4 @@ ExecStart=/usr/bin/node /opt/csye6225/app.js
 Restart=always
 
 [Install]
-WantedBy=multi-user.target
 WantedBy=cloud-init.target
