@@ -9,4 +9,5 @@ ExecStart=/usr/bin/node /opt/csye6225/app.js
 Restart=always
 
 [Install]
+WantedBy=multi-user.target
 WantedBy=cloud-init.target
