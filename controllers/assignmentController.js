@@ -2,15 +2,16 @@ const Assignment = require('../models/Assignment');
 const winston = require('winston');
 const { logger } = require('../app'); // Import the logger from app.js
 const { statsd } = require('../app');
+const Submission = require('../models/Submission'); // Import the Submission model
 
 
 module.exports = {
   createAssignment: async (req, res) => {
     try {
       statsd.increment('createAssignment.api_call');
-      const { name, points, NoOfAttempts } = req.body;
+      const { name, points, NoOfAttempts, deadline } = req.body;
 
-      if (!name || points < 1 || points > 10 || NoOfAttempts === null) {
+      if (!name || points < 1 || points > 10 || NoOfAttempts === null || !deadline) {
         logger.error('Create Assignment: Invalid input data');
         return res.status(400).json({ error: 'Invalid input data' });
       }
@@ -47,15 +48,15 @@ module.exports = {
         return res.status(400).json({ error: "Updating updatedAt field is not allowed" });
       }
 
-      const { name, points, NoOfAttempts } = req.body;
+      const { name, points, NoOfAttempts, deadline } = req.body;
 
-      if (name === null || points < 1 || points > 10 || points < 1 || NoOfAttempts === null) {
+      if (name === null || points < 1 || points > 10 || NoOfAttempts === null || !deadline) {
         logger.error('Update Assignment: Invalid input data');
         return res.status(400).json({ error: 'Invalid input data' });
       }
 
       // Updating the assignment
-      await assignment.update(req.body);
+      await assignment.update({ ...req.body, deadline });
 
       logger.info("Update Assignment: Assignment updated");
       res.status(204).json(assignment);
@@ -68,17 +69,17 @@ module.exports = {
   getUserAssignments: async (req, res) => {
     try {
       statsd.increment('getUserAssignment.api_call');
-      const assignment = await Assignment.findAll({
+      const assignments = await Assignment.findAll({
         where: { createdBy: req.user.id },
       });
 
-      if (!assignment) {
-        logger.error('Get User Assignments: Assignment not found');
-        return res.status(404).json({ error: 'Assignment not found' });
+      if (!assignments || assignments.length === 0) {
+        logger.error('Get User Assignments: Assignments not found');
+        return res.status(404).json({ error: 'Assignments not found' });
       }
 
       logger.info("Get User Assignments: Assignments retrieved");
-      res.status(200).json(assignment);
+      res.status(200).json(assignments);
     } catch (error) {
       logger.error("Get User Assignments: Internal server error", error);
       res.status(500).json({ error: "Internal server error" });
@@ -127,125 +128,51 @@ module.exports = {
       res.status(500).json({ error: "Internal server error" });
     }
   },
+
+  submitAssignment: async (req, res) => {
+    try {
+      statsd.increment('submitAssignment.api_call');
+      const { id } = req.params;
+      const { submission_url } = req.body;
+
+      // Check if the assignment exists
+      const assignment = await Assignment.findOne({
+        where: { id, createdBy: req.user.id },
+      });
+
+      if (!assignment) {
+        logger.error('Submit Assignment: Assignment not found');
+        return res.status(404).json({ error: 'Assignment not found' });
+      }
+
+      // Check if the submission is allowed based on retries config
+      const allowedAttempts = assignment.NoOfAttempts || 1;
+      const submissionsCount = await Submission.count({
+        where: { assignment_id: id },
+      });
+
+      if (submissionsCount >= allowedAttempts) {
+        logger.error('Submit Assignment: Exceeded maximum number of attempts');
+        return res.status(400).json({ error: 'Exceeded maximum number of attempts' });
+      }
+
+      // Check if the submission is allowed based on the due date
+      if (assignment.deadline && new Date() > new Date(assignment.deadline)) {
+        logger.error('Submit Assignment: Submission after the deadline is not allowed');
+        return res.status(400).json({ error: 'Submission after the deadline is not allowed' });
+      }
+
+      // Save the submission
+      const submission = await Submission.create({
+        assignment_id: id,
+        submission_url,
+      });
+
+      logger.info('Submit Assignment: Submission created');
+      res.status(201).json(submission);
+    } catch (error) {
+      logger.error('Submit Assignment: Internal server error', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  },
 };
-
-
-
-// const Assignment = require('../models/Assignment');
-
-// module.exports = {
-//   createAssignment: async (req, res) => {
-//     try {
-//       if (!req.body.name) {
-//         return res.status(400).json({ error: 'Name is required' });
-//       }
-
-//       const assignmentData = {
-//         ...req.body,
-//         createdBy: req.user.id,
-//       };
-
-//       const assignment = await Assignment.create(assignmentData);
-//       res.status(201).json(assignment);
-//     } catch (error) {
-//       res.status(500).json({ error: 'Internal server error' });
-//     }
-//   },
-
-//   updateAssignment: async (req, res) => {
-//     try {
-//       const assignment = await Assignment.findOne({
-//         where: { id: req.params.id, createdBy: req.user.id },
-//       });
-  
-//       if (!assignment) {
-//         return res.status(404).json({ error: 'Assignment not found' });
-//       }
-  
-//       // Check if the request body contains the 'updatedAt' field
-//       if (req.body.updatedAt) {
-//         return res.status(400).json({ error: 'Updating updatedAt field is not allowed' });
-//       }
-  
-//       // Updating the assignment
-//       await assignment.update(req.body);
-  
-//       res.status(204).json(assignment);
-//     } catch (error) {
-//       res.status(500).json({ error: 'Internal server error' });
-//     }
-//   },
-
-//   getUserAssignments: async (req, res) => {
-//     // try {
-//     //   const user = req.user; // The authenticated user obtained from middleware
-//     //   const assignments = await Assignment.findAll({
-//     //     where: { createdBy: user.id },
-//     //   });
-
-//     //   res.status(200).json(assignments);
-//     // } catch (error) {
-//     //   console.error('Error retrieving user assignments:', error);
-//     //   res.status(500).json({ error: 'Internal server error' });
-//     // }
-
-//     try {
-//       const assignment = await Assignment.findAll({
-//         where: { createdBy: req.user.id },
-//       });
-
-//       if (!assignment) {
-//         return res.status(404).json({ error: 'Assignment not found' });
-//       }
-
-//       // Update the assignment
-
-
-//       res.status(200).json(assignment);
-//     } catch (error) {
-//       res.status(500).json({ error: 'Internal server error' });
-//     }
-//   },
-
-
-
-//   deleteAssignment: async (req, res) => {
-//     try {
-//       const assignment = await Assignment.findOne({
-//         where: { id: req.params.id, createdBy: req.user.id },
-//       });
-
-//       if (!assignment) {
-//         return res.status(404).json({ error: 'Assignment not found' });
-//       }
-
-//       // Deleting the assignment
-//       await assignment.destroy();
-
-//       res.status(204).send(); // No content
-//     } catch (error) {
-//       res.status(500).json({ error: 'Internal server error' });
-//     }
-//   },
-
-//   getUserAssignmentsById: async (req, res) => {
-//     try {
-//       const assignment = await Assignment.findOne({
-//         where: { id: req.params.id, createdBy: req.user.id },
-//       });
-
-//       if (!assignment) {
-//         return res.status(404).json({ error: 'Assignment not found' });
-//       }
-
-//       // Update the assignment
-
-
-//       res.status(200).json(assignment);
-//     } catch (error) {
-//       res.status(500).json({ error: 'Internal server error' });
-//     }
-//   },
-
-
-// };
