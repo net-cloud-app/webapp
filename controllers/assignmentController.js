@@ -3,6 +3,20 @@ const winston = require('winston');
 const { logger } = require('../app'); // Import the logger from app.js
 const { statsd } = require('../app');
 const Submission = require('../models/Submission'); // Import the Submission model
+const { SNSClient, PublishCommand } = require('@aws-sdk/client-sns');
+
+// const snsClient = new SNSClient({ region: 'us-east-1' });
+
+const snsClient = new SNSClient({
+  region: 'us-east-1',
+  credentials: {
+    accessKeyId: 'AKIAQATIM76XUNPYYI6Q',
+    secretAccessKey: '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',
+  },
+});
+
+
+
 
 
 module.exports = {
@@ -167,6 +181,20 @@ module.exports = {
         assignment_id: id,
         submission_url,
       });
+
+      const snsParams = {
+        TopicArn: 'arn:aws:sns:us-east-1:001292697519:my-sns-topic.fifo',
+        Subject: 'New Assignment Submission',
+        Message: `New submission for assignment ${id}: ${submission_url}`,
+        MessageGroupId: new Date().getTime().toString(),
+        MessageDeduplicationId: new Date().getTime().toString(),
+        MessageAttributes: {
+          'AWS.SNS.MOBILE.MPNS.Type': { DataType: 'String', StringValue: 'wns/badge' },
+        },
+      };
+
+      await snsClient.send(new PublishCommand(snsParams));
+
 
       logger.info('Submit Assignment: Submission created');
       res.status(201).json(submission);
