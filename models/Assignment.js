@@ -22,6 +22,10 @@ const Assignment = sequelize.define('Assignment', {
       max: 10,
     },
   },
+  deadline: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
   createdBy: {
     type: DataTypes.INTEGER,
     allowNull: false,

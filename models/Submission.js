@@ -1,24 +1,24 @@
+// Submission.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-const User = sequelize.define('User', {
-  email: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: false,
-  },
-  password: {
-    type: DataTypes.STRING,
+const Submission = sequelize.define('Submission', {
+  assignment_id: {
+    type: DataTypes.INTEGER,
     allowNull: false,
   },
-  createdAt: {
+  submission_url: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  submission_date: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
   },
-  updatedAt: {
+  submission_updated: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
   },
 });
 
-module.exports = User;
+module.exports = Submission;

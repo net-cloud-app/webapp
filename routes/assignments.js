@@ -16,6 +16,9 @@ router.patch('/assignments/:id', (req, res) => {
     res.status(405).json({ error: 'Method Not Allowed' });
 });
 
+router.post('/assignments/:id/submission', assignmentController.submitAssignment);
+
+
 
 
 
