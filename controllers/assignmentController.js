@@ -6,6 +6,8 @@ const Submission = require('../models/Submission'); // Import the Submission mod
 const { SNSClient, PublishCommand } = require('@aws-sdk/client-sns');
 require('dotenv').config(); // Load environment variables from .env file
 const AWS = require('aws-sdk');
+const User = require('../models/User');
+
 
 
 
@@ -184,6 +186,7 @@ module.exports = {
       statsd.increment('submitAssignment.api_call');
       const { id } = req.params;
       const { submission_url } = req.body;
+      const { userId } = req.user.id; 
 
       if (!submission_url) {
         logger.error('Submit Assignment: Missing submission_url in the request body');
@@ -240,6 +243,7 @@ module.exports = {
       const message = {
         assignment_Id: id,
         submissionUrl: submission_url,
+        userId: userId
       };
 
       const topicArn = process.env.SNS_TOPIC_ARN;
