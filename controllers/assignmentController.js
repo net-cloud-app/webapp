@@ -11,13 +11,6 @@ const AWS = require('aws-sdk');
 
 // const snsClient = new SNSClient({ region: 'us-east-1' });
 
-// const snsClient = new SNSClient({
-//   region: 'us-east-1',
-//   credentials: {
-//     accessKeyId: 'AKIAQATIM76XUNPYYI6Q',
-//     secretAccessKey: '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',
-//   },
-// });
 
 AWS.config.update({
   accessKeyId: 'AKIAQATIM76XUNPYYI6Q',
@@ -29,7 +22,13 @@ const sns = new AWS.SNS();
 
 const publishToSNSTopic = async (message, topicArn) => {
   // Create an SNS client
-  const snsClient = new SNSClient();
+  const snsClient = new SNSClient({
+    region: 'us-east-1',
+    credentials: {
+      accessKeyId: 'AKIAQATIM76XUNPYYI6Q',
+      secretAccessKey: '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',
+    },
+  });
 
   // Convert the message object to a JSON string
   const messageBody = JSON.stringify(message);
@@ -185,11 +184,17 @@ module.exports = {
       statsd.increment('submitAssignment.api_call');
       const { id } = req.params;
       const { submission_url } = req.body;
-      // Check if the assignment exists
+
+      if (!submission_url) {
+        logger.error('Submit Assignment: Missing submission_url in the request body');
+        return res.status(400).json({ error: 'Missing submission_url in the request body' });
+      }
+
       const assignment = await Assignment.findOne({
         where: { id, createdBy: req.user.id },
       });
-
+      
+      // Check if the assignment exists
       if (!assignment) {
         logger.error('Submit Assignment: Assignment not found');
         return res.status(404).json({ error: 'Assignment not found' });
