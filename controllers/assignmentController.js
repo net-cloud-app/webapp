@@ -5,19 +5,55 @@ const { statsd } = require('../app');
 const Submission = require('../models/Submission'); // Import the Submission model
 const { SNSClient, PublishCommand } = require('@aws-sdk/client-sns');
 require('dotenv').config(); // Load environment variables from .env file
+const AWS = require('aws-sdk');
+
+
 
 // const snsClient = new SNSClient({ region: 'us-east-1' });
 
-const snsClient = new SNSClient({
-  region: 'us-east-1',
-  credentials: {
-    accessKeyId: 'AKIAQATIM76XUNPYYI6Q',
-    secretAccessKey: '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',
-  },
+// const snsClient = new SNSClient({
+//   region: 'us-east-1',
+//   credentials: {
+//     accessKeyId: 'AKIAQATIM76XUNPYYI6Q',
+//     secretAccessKey: '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',
+//   },
+// });
+
+AWS.config.update({
+  accessKeyId: 'AKIAQATIM76XUNPYYI6Q',
+  secretAccessKey: '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',
+  region: 'us-east-1'
 });
 
+const sns = new AWS.SNS();
 
+const publishToSNSTopic = async (message, topicArn) => {
+  // Create an SNS client
+  const snsClient = new SNSClient();
 
+  // Convert the message object to a JSON string
+  const messageBody = JSON.stringify(message);
+
+  // Create the publish command
+  const publishCommand = new PublishCommand({
+    TopicArn: topicArn,
+    Message: messageBody,
+  });
+
+  try {
+    // Publish the message to the SNS topic
+    const result = await snsClient.send(publishCommand);
+    
+    // Log or handle the result if needed
+    console.log('Message published successfully:', result);
+  } catch (error) {
+    // Handle errors during message publishing
+    console.error('Error publishing message to SNS:', error);
+    throw error; // Rethrow the error for further handling if needed
+  }
+};
+
+module.exports = { publishToSNSTopic };
 
 
 module.exports = {
@@ -149,7 +185,6 @@ module.exports = {
       statsd.increment('submitAssignment.api_call');
       const { id } = req.params;
       const { submission_url } = req.body;
-
       // Check if the assignment exists
       const assignment = await Assignment.findOne({
         where: { id, createdBy: req.user.id },
@@ -183,18 +218,28 @@ module.exports = {
         submission_url,
       });
 
-      const snsParams = {
-        TopicArn: process.env.SNS_TOPIC_ARN,
-        Subject: 'New Assignment Submission',
-        Message: `New submission for assignment ${id}: ${submission_url}`,
-        MessageGroupId: new Date().getTime().toString(),
-        MessageDeduplicationId: new Date().getTime().toString(),
-        MessageAttributes: {
-          'AWS.SNS.MOBILE.MPNS.Type': { DataType: 'String', StringValue: 'wns/badge' },
-        },
+      // const snsParams = {
+      //   TopicArn: process.env.SNS_TOPIC_ARN,
+      //   Subject: 'New Assignment Submission',
+      //   Message: `New submission for assignment ${id}: ${submission_url}`,
+      //   MessageGroupId: new Date().getTime().toString(),
+      //   MessageDeduplicationId: new Date().getTime().toString(),
+      //   MessageAttributes: {
+      //     'AWS.SNS.MOBILE.MPNS.Type': { DataType: 'String', StringValue: 'wns/badge' },
+      //   },
+      // };
+
+      // await snsClient.send(new PublishCommand(snsParams));
+
+       // Prepare the message for SNS
+      const message = {
+        assignment_Id: id,
+        submissionUrl: submission_url,
       };
 
-      await snsClient.send(new PublishCommand(snsParams));
+      const topicArn = process.env.SNS_TOPIC_ARN;
+
+      await publishToSNSTopic(message, topicArn);
 
 
       logger.info('Submit Assignment: Submission created');
