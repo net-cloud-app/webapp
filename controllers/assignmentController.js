@@ -4,6 +4,7 @@ const { logger } = require('../app'); // Import the logger from app.js
 const { statsd } = require('../app');
 const Submission = require('../models/Submission'); // Import the Submission model
 const { SNSClient, PublishCommand } = require('@aws-sdk/client-sns');
+require('dotenv').config(); // Load environment variables from .env file
 
 // const snsClient = new SNSClient({ region: 'us-east-1' });
 
@@ -183,7 +184,7 @@ module.exports = {
       });
 
       const snsParams = {
-        TopicArn: 'arn:aws:sns:us-east-1:001292697519:my-sns-topic.fifo',
+        TopicArn: process.env.SNS_TOPIC_ARN,
         Subject: 'New Assignment Submission',
         Message: `New submission for assignment ${id}: ${submission_url}`,
         MessageGroupId: new Date().getTime().toString(),
