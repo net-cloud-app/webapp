@@ -50,7 +50,7 @@ variable "aws_secret_access_key" {
 
 
 source "amazon-ebs" "custom" {
-  ami_name      = var.ami_name
+  ami_name      = "debian12-${formatdate("YYYY_MM_DD_hh_mm_ss", timestamp())}"
   source_ami    = var.source_ami
   instance_type = "t2.micro"
   ssh_username  = "admin"
