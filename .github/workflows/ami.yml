@@ -37,36 +37,19 @@ jobs:
                        -var "aws_region=${{ secrets.AWS_REGION }}" \
                        -var "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
                        -var "aws_access_key=${{ secrets.AWS_ACCESS_KEY }}" \
-                       debian-ami.pkr.hcl | tee output.txt
-      
-          # Extract AMI ID from the Packer output and store it in a separate file
-          grep -oP 'ami-\w+' output.txt > ami.txt
-      
-          # Set AMI_ID as an environment variable
-          AMI_ID=$(cat ami.txt)
-          echo "AMI_ID=${AMI_ID}" >> $GITHUB_ENV
-      
+                       debian-ami.pkr.hcl | sudo tee output.txt
+          tail -2 output.txt | head -2 | awk 'match($0, /ami-.*/) { print substr($0, RSTART, RLENGTH) }' >> ami.txt
+          echo "Captured AMI ID: $(tail -1 ami.txt)" 
+
       - name: Create new launch template version
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.DEMO_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.DEMO_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
         run: |
-          # Retrieve the latest launch template
-          LAUNCH_TEMPLATE_NAME=$(aws ec2 describe-launch-templates --query 'LaunchTemplates | sort_by(@, &CreateTime) | [-1].LaunchTemplateName' --output text)
-      
-          if [ -z "$LAUNCH_TEMPLATE_NAME" ]; then
-              echo "No launch template found."
-              exit 1
-          fi
-      
-          # Create new launch template version using the environment variable
-          aws ec2 create-launch-template-version \
-            --launch-template-name "$LAUNCH_TEMPLATE_NAME" \
-            --version-description latest \
-            --source-version 1 \
-            --launch-template-data "ImageId=${AMI_ID}"
-     
+          AMI_ID=$(cat ami.txt)
+          LAUNCH_TEMPLATE_NAME=$(aws ec2 describe-launch-templates --query 'LaunchTemplates[?starts_with(LaunchTemplateName, launchTemplate) == true].LaunchTemplateName' --output text)
+          aws ec2 create-launch-template-version --launch-template-name $LAUNCH_TEMPLATE_NAME --version-description latest --source-version 1 --launch-template-data "ImageId=$AMI_ID"
 
       - name: Update the autoscaling group
         id: set_asg_name
