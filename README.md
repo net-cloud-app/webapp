@@ -1,5 +1,5 @@
 # webapp
-## Prerequisites111  11     
+## Prerequisites    
 
 - Node.js and npm installed on your development machine.       
 - MySQL or MariaDB installed on your server with a configured database.
@@ -36,4 +36,13 @@ npm start or node.js
 
 ## Usage
 Access the API documentation by navigating to http://localhost:3000/api/assignments or healthz in your web browser for detailed API endpoints and request examples.
+
+## Command to import SSL Certificate
+
+aws acm import-certificate \
+    --profile demo \
+    --certificate fileb:///Users/harish/Downloads/demo_harishnetcloud.site/demo_harishnetcloud_site.crt \
+    --private-key fileb:///Users/harish/Downloads/ssl/ssl-private-key.key \
+    --certificate-chain fileb:///Users/harish/Downloads/demo_harishnetcloud.site/demo_harishnetcloud_site.ca-bundle \
+    --region us-east-1
 
