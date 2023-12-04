@@ -64,6 +64,7 @@ jobs:
         run: |
           AMI_ID=$(cat ami.txt)
           LAUNCH_TEMPLATE_NAME=$(aws ec2 describe-launch-templates --query 'LaunchTemplates[?starts_with(LaunchTemplateName, `launchTemplate-`) == true].LaunchTemplateName' --output text)
+          echo "Raw Launch Template Names: $LAUNCH_TEMPLATE_NAME"
           if [ -z "$LAUNCH_TEMPLATE_NAME" ]; then
             echo "No Launch Template found with the specified prefix."
             exit 1
@@ -71,8 +72,8 @@ jobs:
           echo "Launch Template Name: $LAUNCH_TEMPLATE_NAME"
           echo "AMI_ID=$AMI_ID"
           echo "LAUNCH_TEMPLATE_NAME=$LAUNCH_TEMPLATE_NAME" >> $GITHUB_ENV
-          aws ec2 create-launch-template-version --launch-template-name $LAUNCH_TEMPLATE_NAME --version-description latest --source-version 1 --launch-template-data "ImageId=$AMI_ID"
-                
+          aws ec2 create-launch-template-version --launch-template-name "$LAUNCH_TEMPLATE_NAME" --version-description latest --source-version 1 --launch-template-data "ImageId=$AMI_ID"
+
       - name: Update the autoscaling group
         id: set_asg_name
         env:
