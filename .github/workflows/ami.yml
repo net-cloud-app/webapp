@@ -58,7 +58,14 @@ jobs:
               echo "No launch template found."
               exit 1
           fi
-          aws ec2 create-launch-template
+      
+          # Create new launch template version
+          aws ec2 create-launch-template-version \
+            --launch-template-name "$LAUNCH_TEMPLATE_NAME" \
+            --version-description latest \
+            --source-version 1 \
+            --launch-template-data "ImageId=$AMI_ID"
+     
 
       - name: Update the autoscaling group
         id: set_asg_name
