@@ -67,23 +67,10 @@ jobs:
               echo "No Auto Scaling Group found with the specified prefix."
               exit 1
           fi
-          
           echo "Auto Scaling Group Name: $AUTO_SCALING_GROUP_NAME"
           echo "AUTO_SCALING_GROUP_NAME=$AUTO_SCALING_GROUP_NAME" >> $GITHUB_ENV
-          LAUNCH_TEMPLATE_NAME="launchTemplate-38c483b"
-          LAUNCH_TEMPLATE_VERSION=$(aws ec2 describe-launch-template-versions --launch-template-name $LAUNCH_TEMPLATE_NAME --query 'LaunchTemplateVersions[-1].VersionNumber' --output text)
+          aws autoscaling update-auto-scaling-group --auto-scaling-group-name $AUTO_SCALING_GROUP_NAME --launch-template LaunchTemplateName=launchTemplate-38c483b,Version='$Latest'
           
-          if [ -z "$LAUNCH_TEMPLATE_VERSION" ]; then
-          echo "Failed to fetch the latest launch template version."
-          exit 1
-          fi
-          
-          echo "Using launch template version: $LAUNCH_TEMPLATE_VERSION"
-          
-          # Update the Auto Scaling Group with the launch template
-          aws autoscaling update-auto-scaling-group \
-            --auto-scaling-group-name $AUTO_SCALING_GROUP_NAME \
-            --launch-template LaunchTemplateName=$LAUNCH_TEMPLATE_NAME,Version=$LAUNCH_TEMPLATE_VERSION
                 
       - name: Instance refresh and wait
         env:
