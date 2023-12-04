@@ -47,6 +47,15 @@ jobs:
                       debian-ami.pkr.hcl | sudo tee output.txt
           tail -2 output.txt | head -2 | awk 'match($0, /ami-.*/) { print substr($0, RSTART, RLENGTH) }' >> ami.txt
 
+      - name: Debug Launch Templates
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.DEMO_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.DEMO_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          aws ec2 describe-launch-templates --query 'LaunchTemplates[*].LaunchTemplateName' --output text
+
+
       - name: Create new launch template version
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.DEMO_ACCESS_KEY_ID }}
