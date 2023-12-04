@@ -31,15 +31,20 @@ jobs:
       - name: Building Packer Template
         run: |
           # Build AMI using Packer and store output in a file
-          AMI_ID=$(packer build -var "demo_account_id=${{ secrets.DEMO_ACCOUNT_ID }}" \
-                                -var "source_ami=${{ secrets.SOURCE_AMI }}" \
-                                -var "ami_name=${{ secrets.AMI_NAME }}" \
-                                -var "aws_region=${{ secrets.AWS_REGION }}" \
-                                -var "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
-                                -var "aws_access_key=${{ secrets.AWS_ACCESS_KEY }}" \
-                                debian-ami.pkr.hcl | tee output.txt | grep -oP 'ami-\w+')
+          packer build -var "demo_account_id=${{ secrets.DEMO_ACCOUNT_ID }}" \
+                       -var "source_ami=${{ secrets.SOURCE_AMI }}" \
+                       -var "ami_name=${{ secrets.AMI_NAME }}" \
+                       -var "aws_region=${{ secrets.AWS_REGION }}" \
+                       -var "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+                       -var "aws_access_key=${{ secrets.AWS_ACCESS_KEY }}" \
+                       debian-ami.pkr.hcl | tee output.txt
       
-          echo "AMI_ID=$AMI_ID" > ami.txt
+          # Extract AMI ID from the Packer output and store it in a separate file
+          grep -oP 'ami-\w+' output.txt > ami.txt
+      
+          # Create new launch template version
+          AMI_ID=$(cat ami.txt)
+          echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV  # Set AMI_ID as an environment variable
       
       - name: Create new launch template version
         env:
@@ -49,16 +54,13 @@ jobs:
         run: |
           # Retrieve the latest launch template
           LAUNCH_TEMPLATE_NAME=$(aws ec2 describe-launch-templates --query 'LaunchTemplates | sort_by(@, &CreateTime) | [-1].LaunchTemplateName' --output text)
-        
+      
           if [ -z "$LAUNCH_TEMPLATE_NAME" ]; then
               echo "No launch template found."
               exit 1
           fi
       
-          # Read the AMI ID from ami.txt
-          AMI_ID=$(cat ami.txt)
-      
-          # Create new launch template version
+          # Create new launch template version using the environment variable
           aws ec2 create-launch-template-version \
             --launch-template-name "$LAUNCH_TEMPLATE_NAME" \
             --version-description latest \
