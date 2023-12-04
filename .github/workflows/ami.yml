@@ -47,10 +47,14 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.DEMO_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
         run: |
-          AMI_ID=$(cat ami.txt)
-          LAUNCH_TEMPLATE_NAME=$(aws ec2 describe-launch-templates --query 'LaunchTemplates[?starts_with(LaunchTemplateName, launchTemplate) == true].LaunchTemplateName' --output text)
-          aws ec2 create-launch-template-version --launch-template-name $LAUNCH_TEMPLATE_NAME --version-description latest --source-version 1 --launch-template-data "ImageId=$AMI_ID"
-
+          launch_template_id=$(aws ec2 describe-launch-templates --query 'LaunchTemplates[0].LaunchTemplateId' --output text)
+          ami_id=$(tail -1 ami.txt)
+          aws ec2 create-launch-template-version \
+            --launch-template-id $launch_template_id \
+            --source-version 1 \
+            --version-description "Updated with latest AMI" \
+            --launch-template-data "ImageId=$ami_id"
+            
       - name: Update the autoscaling group
         id: set_asg_name
         env:
