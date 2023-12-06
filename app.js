@@ -44,20 +44,20 @@ app.use(bodyParser.json());
 
 // Routes
 app.use('/auth', require('./routes/auth'));
-app.use('/api', require('./routes/assignments'));
+app.use('/v2', require('./routes/assignments'));
 
 app.post('/', (req, res) => {
-  req.url = '/api/assignments'; // Rewrite the URL to the desired endpoint
+  req.url = '/v2/assignments'; // Rewrite the URL to the desired endpoint
   app._router.handle(req, res);
 });
 
 app.get('/', (req, res) => {
-  req.url = '/api/assignments'; // Rewrite the URL to the desired endpoint
+  req.url = '/v2/assignments'; // Rewrite the URL to the desired endpoint
   app._router.handle(req, res);
 });
 
 app.use('/', require('./routes/health'));
-app.use('/api', require('./routes/users'));
+app.use('/v2', require('./routes/users'));
 
 // Start your server after the database connection is established
 const initDatabase = async () => {
