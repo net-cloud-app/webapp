@@ -21,8 +21,8 @@ const publishToSNSTopic = async (message, topicArn) => {
   const snsClient = new SNSClient({
     region: 'us-east-1',
     credentials: {
-      accessKeyId: 'AKIAQATIM76XUNPYYI6Q',
-      secretAccessKey: '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',
+      accessKeyId: 'AWS_ACCESS_KEY',
+      secretAccessKey: 'AWS_SECREt_KEY_ID',
     },
   });
 
