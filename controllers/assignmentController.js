@@ -11,14 +11,8 @@ const User = require('../models/User');
 
 
 
-// const snsClient = new SNSClient({ region: 'us-east-1' });
+const snsClient = new SNSClient({ region: 'us-east-1' });
 
-
-AWS.config.update({
-  accessKeyId: 'AKIAQATIM76XUNPYYI6Q',
-  secretAccessKey: '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',
-  region: 'us-east-1'
-});
 
 const sns = new AWS.SNS();
 
