@@ -1,7 +1,7 @@
 # webapp
 ## Prerequisites    
 
-- Node.js and npm installed on your development machine.       
+- Node.js and npm installed on your development machine. wrgeg       
 - MySQL or MariaDB installed on your server with a configured database.
 - Sequelize CLI (`npx sequelize-cli`) installed globally.
 
